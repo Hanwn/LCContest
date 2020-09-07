@@ -1,0 +1,1 @@
+This repo is recored for contest organized by leetcode/
