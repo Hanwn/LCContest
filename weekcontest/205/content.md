@@ -236,13 +236,49 @@ Alice 和 Bob 共有一个无向图，其中包含 n 个节点和 3  种类型�
 
 返回可以删除的最大边数，如果 Alice 和 Bob 无法完全遍历图，则返回 -1 。
 
-> 分析：并查集
+> 分析：优先删除第三种类型的边，如果两个节点通过第三种类型的边直接相连，但是这两个节点在一个连通图中，那么这条边就可以删掉，因为存在这条边是多余的，即a->b已经可以到达，就不需要中间的公共边。:question:为什么优先删除第三种类型的边？？
 
 ```cpp
+struct DSU{
+    int f[100005];
+    int N;
+    void init(int n) {
+        N = n;
+        for (int i = 1; i < n + 1; ++i) {
+            f[i] = i;
+        }
+    }
+    int find(int x) {
+        if (x == f[x]) return ;
+        return f[x] = find(f[x]);
+    }
+    bool merge(int x,int y) {
+        int fx = find(x),fy = find(y);
+        if (fx == fy) return false;
+        f[fx] = fy;N--;
+        return true;
+    }
+};
 class Solution {
 public:
     int maxNumEdgesToRemove(int n, vector<vector<int>>& edges) {
-
+        DSU a,b;
+        int ans = 0;
+        a.init(n),b.init(n);
+        for (auto e:edges) {
+            if (e[0] == 3) {
+                bool ba = a.merge(e[1],e[2]);
+                bool bb = b.merge(e[1],e[2]);
+                if (!ba && !bb) ++ans;
+            }
+        }
+        for (auto e:edges) {
+            if (e[0] == 1 && !a.merge(e[1],e[2])) ans++;
+            if (e[0] == 2 && !b.merge(e[1],e[2])) ans++;
+     
+        }
+        if (a.N > 1 || b.N > 1) return -1;
+        return ans;
     }
 };
 ```
